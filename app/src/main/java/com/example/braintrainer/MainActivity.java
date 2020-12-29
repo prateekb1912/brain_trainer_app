@@ -10,7 +10,8 @@ public class MainActivity extends AppCompatActivity {
 
     Button goButton;
 
-    public void start(View view) {
+    public void startGame(View view) {
+        goButton = findViewById(R.id.goButton);
         goButton.setVisibility(View.INVISIBLE);
     }
 

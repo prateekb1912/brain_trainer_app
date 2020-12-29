@@ -1,6 +1,7 @@
 package com.example.braintrainer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -17,7 +18,10 @@ public class MainActivity extends AppCompatActivity {
     Button goButton, restartButton;
     TextView sumTextView, responseTextView, scoreTextView, timerTextView;
     ArrayList<Button> optionButtons = new ArrayList<Button>();
+    ConstraintLayout gameLayout;
+
     int correctOption, score = 0, questions = 0;
+
     private static final int[] BUTTON_IDS = {
             R.id.button1,
             R.id.button2,
@@ -25,23 +29,6 @@ public class MainActivity extends AppCompatActivity {
             R.id.button4,
     };
 
-    public void playAgain(View view) {
-        score = 0;
-        questions = 0;
-        timerTextView.setText("30s");
-        new CountDownTimer(30100, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timerTextView.setText(Long.toString(millisUntilFinished/1000) + "s");
-            }
-
-            @Override
-            public void onFinish() {
-                responseTextView.setText("DONE!");
-                restartButton.setVisibility(View.VISIBLE);
-            }
-        }.start();
-    }
 
     public void newQuestion() {
 
@@ -52,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
         int b = rand.nextInt(21);
         int sum = a+b;
         correctOption = rand.nextInt(4);
-
-        newQuestion();
 
         sumTextView.setText(Integer.toString(a)+" + "+Integer.toString(b));
 
@@ -75,6 +60,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void playAgain(View view) {
+        score = 0;
+        questions = 0;
+        timerTextView.setText("30s");
+        scoreTextView.setText(String.format("%d/%d", score, questions));
+        restartButton.setVisibility(View.INVISIBLE);
+        responseTextView.setText("");
+
+        for(Button btn: optionButtons)
+        {
+            btn.setEnabled(true);
+        }
+
+        newQuestion();
+
+        new CountDownTimer(30100, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timerTextView.setText(Long.toString(millisUntilFinished/1000) + "s");
+            }
+
+            @Override
+            public void onFinish() {
+                responseTextView.setText("Your Score : "+Long.toString(score*100/questions)+"%");
+                restartButton.setVisibility(View.VISIBLE);
+                for(Button btn: optionButtons)
+                {
+                    btn.setEnabled(false);
+                }
+            }
+        }.start();
+    }
+
     public void chooseAnswer(View view) {
         String correct = Integer.toString(correctOption);
         String tag = view.getTag().toString();
@@ -82,19 +100,19 @@ public class MainActivity extends AppCompatActivity {
         if(correct.equals(tag)) {
             responseTextView.setText("Correct!");
             score++;
-            questions++;
         }
         else {
             responseTextView.setText("Wrong :(");
-            questions++;
         }
+        questions++;
         scoreTextView.setText(Integer.toString(score)+"/"+Integer.toString(questions));
         newQuestion();
     }
 
     public void startGame(View view) {
+        playAgain(findViewById(R.id.timerTextView));
         goButton.setVisibility(View.INVISIBLE);
-        newQuestion();
+        gameLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -108,7 +126,9 @@ public class MainActivity extends AppCompatActivity {
         scoreTextView = findViewById(R.id.scoreTextView);
         timerTextView = findViewById(R.id.timerTextView);
         restartButton = findViewById(R.id.restartButton);
+        gameLayout = findViewById(R.id.gameLayout);
 
-        playAgain(timerTextView);
+        goButton.setVisibility(View.VISIBLE);
+        gameLayout.setVisibility(View.INVISIBLE);
     }
 }
